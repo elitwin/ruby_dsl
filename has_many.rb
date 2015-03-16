@@ -1,16 +1,21 @@
-module HasMany
-  def has_many(name)
-    name_to_module = name.to_s.split('_').map(&:capitalize).join
-    mod_name = 'HasMany' + name_to_module
+module ModuleHelper
+  module_function
+  def module_for(prefix, name, klass)
+    mod_name = prefix + name.to_s.split('_').map(&:capitalize).join
     begin
-      method_module = self.const_get(mod_name)
+      method_module = klass.send(:const_get, mod_name)
     rescue NameError
       method_module = Module.new
-      self.const_set(mod_name, method_module)
+      klass.send(:const_set, mod_name, method_module)
       # adds as instance methods in the class
-      include method_module
+      klass.send(:include, method_module)
     end
+  end
+end
 
+module HasMany
+  def has_many(name)
+    method_module = ModuleHelper.module_for('HasMany', name, self)
     # evaluate the string and turn it into real Ruby methods
     method_module.module_eval <<-CODE, __FILE__, __LINE__
       def #{name}
