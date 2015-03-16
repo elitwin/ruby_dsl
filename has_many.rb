@@ -11,9 +11,8 @@ module HasMany
       include method_module
     end
 
-    # include line_no on same line as method_defs to provide
-    # correct location of any errors in the stack trace
-    line_no = __LINE__; method_defs = %{
+    # evaluate the string and turn it into real Ruby methods
+    method_module.module_eval <<-CODE, __FILE__, __LINE__
       def #{name}
         driver.find_elements(:css, '.#{name}')
       end
@@ -21,9 +20,7 @@ module HasMany
       def #{name}_texts
         #{name}.map(&:text)
       end
-    }
-    # evaluate the string and turn it into real Ruby methods
-    method_module.module_eval method_defs, __FILE__, line_no
+    CODE
   end
 end
 
