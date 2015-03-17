@@ -8,8 +8,12 @@ module Olaf
     #self.instance_eval(&block)
   end
 
-  def self.likes_warm_hugs
-    @likes_warm_hugs = true
+  def self.likes_warm_hugs(value)
+    @likes_warm_hugs = value
+  end
+
+  def self.likes_warm_hugs?
+    @likes_warm_hugs
   end
 
   class << self
@@ -22,23 +26,19 @@ module Olaf
 
   marshmallow = OpenStruct.new(angry: false)
 
-  # Have to set value inside module - what's the point?
   # Also, implicit block should not be able to access marshmallow
   # This works though
   Olaf.configure do
-    unless marshmallow.angry
-      likes_warm_hugs
-    end
+    likes_warm_hugs !marshmallow.angry
   end
 end
 
-# Doesn't work - would need to do self.likes_warm_hugs = true
+# This now works outside of module due to declarative setters/getters
 #Olaf.configure do
-#  likes_warm_hugs = true
-#  unless marshmallow.angry
+#  likes_warm_hugs true
 #end
 
-puts "Likes warm hugs: #{Olaf.likes_warm_hugs}" # This ends up setting 
+puts "Likes warm hugs: #{Olaf.likes_warm_hugs?}" # This ends up setting
 #puts "Methods: #{Olaf.instance_methods.sort}"
 #puts "Private Methods: #{Olaf.private_methods.sort}"
 #puts "Ancestors: #{Olaf.ancestors}"
